@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="th">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>รายชื่อผู้ใช้ LINE</title>
+    <style>
+        body {
+            margin: 0;
+            font: 500 16px system-ui;
+            background: #0a0f1f;
+            color: #e8eefc;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 20px;
+            background: #121a30;
+            border-bottom: 1px solid #223053;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        main {
+            flex: 1;
+            padding: 20px;
+            max-width: 960px;
+            margin: auto;
+            width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #223053;
+            text-align: left;
+        }
+
+        th {
+            background: #1c2541;
+            color: #9fb4db;
+        }
+
+        tr:hover {
+            background: #223053;
+        }
+
+        img.avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .muted {
+            color: #8aa0c7;
+            font-size: 13px;
+        }
+
+        .btn {
+            display: inline-block;
+            margin: 20px auto 10px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            color: #fff;
+            text-decoration: none;
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, .3);
+        }
+
+        .btn:hover {
+            filter: brightness(1.1);
+        }
+
+        footer {
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>📋 รายชื่อผู้ใช้ LINE</h1>
+    </header>
+    <main>
+        <div id="loading">⏳ กำลังโหลดข้อมูล...</div>
+        <table id="userTable" style="display:none">
+            <thead>
+                <tr>
+                    <th>เวลา</th>
+                    <th>UserID</th>
+                    <th>ชื่อ</th>
+                    <th>Email</th>
+                    <th>รูป</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </main>
+    <footer>
+        <!-- ปุ่มปิด -->
+        <a href="javascript:void(0)" class="btn" onclick="closeApp()">ปิดและกลับไปแชท LINE</a>
+    </footer>
+
+    <!-- LIFF SDK -->
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script>
+        async function initLiff() {
+            try {
+                // 👉 ใส่ LIFF ID ของคุณตรงนี้
+                await liff.init({ liffId: "2008048542-6vOW7rQJ" });
+            } catch (err) {
+                console.error('LIFF init error', err);
+            }
+        }
+        initLiff();
+
+        // โหลดข้อมูลผู้ใช้จาก API
+        async function loadUsers() {
+            try {
+                const res = await fetch('/api/users');
+                const { items } = await res.json();
+                const tbody = document.querySelector('#userTable tbody');
+                tbody.innerHTML = '';
+                items.forEach(u => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+            <td>${u.timestamp}</td>
+            <td class="muted">${u.userId}</td>
+            <td>${u.displayName || '-'}</td>
+            <td>${u.email || '<span class="muted">ไม่มี</span>'}</td>
+            <td>${u.pictureUrl ? `<img class="avatar" src="${u.pictureUrl}">` : ''}</td>
+          `;
+                    tbody.appendChild(tr);
+                });
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('userTable').style.display = '';
+            } catch (err) {
+                document.getElementById('loading').innerText = '❌ โหลดข้อมูลล้มเหลว: ' + err;
+            }
+        }
+        loadUsers();
+
+        // ปิด LIFF App
+        function closeApp() {
+            if (typeof liff !== 'undefined' && liff.isInClient()) {
+                liff.closeWindow(); // ✅ ปิดหน้าต่าง LIFF → กลับไปแชท LINE
+            } else {
+                alert("ไม่ได้เปิดใน LINE app");
+            }
+        }
+    </script>
+</body>
+
+</html>
