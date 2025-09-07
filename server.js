@@ -284,9 +284,20 @@ app.get('/callback', async (req, res) => {
             <div class="row"><div class="key">อีเมล</div><div class="val">${payload.email || '—'}</div></div>
           </div>
 
-          <div class="actions">
-            <a class="btn ghost" href="/">← กลับหน้าแรก</a>
-          </div>
+<div class="actions">
+  <!-- ปุ่มกลับหน้าแรก -->
+  <a class="btn ghost" href="/">← กลับหน้าแรก</a>
+
+  <!-- ปุ่มปิดหน้าต่าง -->
+  <button class="btn success" onclick="closeWin()">ปิดหน้านี้</button>
+
+  <!-- ✅ ปุ่มติดตั้ง AppSheet -->
+  <a class="btn primary"
+     href="https://www.appsheet.com/newshortcut/9484f535-e9ef-49b4-994e-97ba449c3227"
+     target="_blank">
+     📲 ติดตั้ง AppSheet 
+  </a>
+</div>
           <div class="note">ปุ่ม “X มุมขวา ด้านบน” จะปิดหน้าต่าง กลับไปยังแชทไลน์</div>
         </section>
 
