@@ -286,9 +286,8 @@ app.get('/callback', async (req, res) => {
 
           <div class="actions">
             <a class="btn ghost" href="/">← กลับหน้าแรก</a>
-            <button class="btn success" onclick="closeWin()">ปิดหน้านี้</button>
           </div>
-          <div class="note">ปุ่ม “ปิดหน้านี้” จะปิดหน้าต่าง (หรือ <code>liff.closeWindow()</code> หากเปิดใน LIFF)</div>
+          <div class="note">ปุ่ม “X มุมขวา ด้านบน” จะปิดหน้าต่าง กลับไปยังแชทไลน์</div>
         </section>
 
         <section>
