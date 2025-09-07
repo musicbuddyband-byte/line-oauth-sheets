@@ -1,5 +1,9 @@
 git add .
 git commit -m "Add AppSheet install button"
 git push origin main
+git pull
+git add server.js
+git commit -m "Callback page: add Back + Install App + Close buttons"
+
 
 รันโค๊ด เมื่อมีปรับแก้ที่หน้า vs เพ่อให้ เซฟเวอร์ แสดงถูกต้อง
