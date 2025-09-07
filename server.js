@@ -138,7 +138,151 @@ app.get('/callback', async (req, res) => {
 
             const user = verifyResp.data;
             // ... เขียนชีตตามเดิม
-            res.send(`<h3>บันทึกสำเร็จ</h3><pre>${JSON.stringify({ userId: user.sub, name: user.name, email: user.email }, null, 2)}</pre><p><a href="/">กลับหน้าแรก</a></p>`);
+            const payload = {
+                userId: user.sub || '',
+                name: user.name || '',
+                email: user.email || '',
+                picture: user.picture || ''
+            };
+
+            res
+                .status(200)
+                .set('Content-Type', 'text/html; charset=utf-8')
+                .send(`<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>บันทึกสำเร็จ • LINE OAuth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1020;
+    --panel:#121a2e;
+    --panel-2:#0f1630;
+    --text:#e8efff;
+    --muted:#9bb0d6;
+    --accent:#6ee7ff;
+    --ok:#22c55e;
+    --ring: rgba(110,231,255,.3);
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:
+      radial-gradient(1000px 600px at 10% -10%, rgba(110,231,255,.10), transparent 50%),
+      radial-gradient(1000px 700px at 110% 30%, rgba(99,102,241,.12), transparent 45%),
+      linear-gradient(180deg, #0b1020 0%, #0a0f22 100%);
+    color:var(--text); font:16px/1.6 Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    display:grid; place-items:center; padding:24px;
+  }
+  .wrap{max-width:960px; width:100%}
+  .card{
+    background:linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 30px 50px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.04);
+    border-radius:var(--radius); padding:28px; position:relative; overflow:hidden;
+  }
+  .hero{
+    display:flex; gap:20px; align-items:center; padding-bottom:12px; border-bottom:1px dashed rgba(255,255,255,.12); margin-bottom:18px;
+  }
+  .badge{
+    display:inline-flex; gap:8px; align-items:center;
+    background:rgba(34,197,94,.12); color:#86efac; border:1px solid rgba(34,197,94,.25);
+    padding:6px 10px; border-radius:999px; font-weight:600; font-size:12px; letter-spacing:.3px; text-transform:uppercase;
+  }
+  .title{font-size:22px; font-weight:700; margin:0}
+  .muted{color:var(--muted); font-size:14px}
+
+  .user{
+    display:flex; gap:16px; align-items:center; margin:12px 0 6px;
+  }
+  .avatar{
+    width:56px; height:56px; border-radius:50%; object-fit:cover; flex:0 0 auto;
+    border:2px solid rgba(255,255,255,.12); box-shadow:0 8px 20px rgba(0,0,0,.25)
+  }
+  .kv{display:grid; gap:8px; margin:12px 0 6px}
+  .row{display:flex; gap:8px; align-items:baseline}
+  .key{width:110px; color:var(--muted)}
+  .val{font-weight:600; color:var(--text); word-break:break-all}
+
+  .actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:18px}
+  .btn{
+    appearance:none; border:1px solid rgba(255,255,255,.12);
+    background:#101935; color:var(--text); padding:10px 14px; border-radius:12px;
+    font-weight:600; letter-spacing:.2px; cursor:pointer;
+    transition:transform .08s ease, box-shadow .15s ease, border-color .2s ease, background .2s ease;
+  }
+  .btn:hover{transform:translateY(-1px); border-color:rgba(110,231,255,.35); box-shadow:0 6px 18px var(--ring)}
+  .btn.primary{background:linear-gradient(135deg, #3b82f6 0%, #22d3ee 100%); border-color:transparent}
+  .btn.success{background:linear-gradient(135deg, #16a34a, #22c55e); border-color:transparent}
+  .btn.ghost{background:transparent}
+
+  .grid{display:grid; grid-template-columns:1fr; gap:18px}
+  @media (min-width:720px){ .grid{grid-template-columns:1.1fr .9fr} }
+  pre{
+    margin:0; padding:16px; border-radius:12px; background:rgba(2,6,23,.55);
+    border:1px solid rgba(255,255,255,.08); overflow:auto; color:#e5edff;
+  }
+  .note{font-size:12px; color:var(--muted); margin-top:10px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="hero">
+        <span class="badge">✓ บันทึกสำเร็จ</span>
+        <h1 class="title">เข้าสู่ระบบด้วย LINE สำเร็จ</h1>
+      </div>
+
+      <div class="grid">
+        <section>
+          <div class="user">
+            <img class="avatar" src="${payload.picture || 'https://i.imgur.com/8Km9tLL.png'}" alt="avatar"/>
+            <div>
+              <div style="font-size:18px; font-weight:700">${payload.name || '—'}</div>
+              <div class="muted">${payload.email || '—'}</div>
+            </div>
+          </div>
+
+          <div class="kv">
+            <div class="row"><div class="key">User ID</div><div class="val">${payload.userId}</div></div>
+            <div class="row"><div class="key">ชื่อ</div><div class="val">${payload.name || '—'}</div></div>
+            <div class="row"><div class="key">อีเมล</div><div class="val">${payload.email || '—'}</div></div>
+          </div>
+
+          <div class="actions">
+            <a class="btn ghost" href="/">← กลับหน้าแรก</a>
+            <a class="btn" href="/users">ดูรายชื่อผู้ใช้</a>
+            <button class="btn success" onclick="closeWin()">ปิดหน้านี้</button>
+          </div>
+          <div class="note">ปุ่ม “ปิดหน้านี้” จะปิดหน้าต่าง (หรือ <code>liff.closeWindow()</code> หากเปิดใน LIFF)</div>
+        </section>
+
+        <section>
+          <div class="muted" style="margin-bottom:8px;font-weight:600">ข้อมูลที่ส่งกลับ</div>
+          <pre>${JSON.stringify(payload, null, 2)}</pre>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function closeWin(){
+      try {
+        if (window.liff && typeof liff.closeWindow === 'function') {
+          liff.closeWindow();
+          return;
+        }
+      } catch(e){}
+      window.close();
+    }
+  </script>
+</body>
+</html>`);
         } catch (verr) {
             console.error('[DEBUG] verify error:', verr?.response?.status, verr?.response?.data || verr);
             return res.status(400).send('Verify failed: ' + (verr?.response?.data ? JSON.stringify(verr.response.data) : String(verr)));
