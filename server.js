@@ -51,11 +51,15 @@ const sheets = google.sheets({ version: 'v4', auth });
 /* ---------- App ---------- */
 const app = express();
 app.set('trust proxy', 1);
+// ใช้ secret จาก ENV (อย่าใช้ random ทุกครั้ง)
+const COOKIE_SECRET = process.env.COOKIE_SECRET || 'dev-secret-change-me';
+
 app.use(cookieSession({
     name: 'sess',
-    secret: crypto.randomBytes(32).toString('hex'),
+    secret: COOKIE_SECRET,
     httpOnly: true,
-    sameSite: 'lax'
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production'  // ใช้ secure cookie บน https
 }));
 
 /* ---------- Pages ---------- */
