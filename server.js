@@ -235,7 +235,7 @@ app.get('/callback', async (req, res) => {
     <div class="card">
       <div class="hero">
         <span class="badge">✓ บันทึกสำเร็จ</span>
-        <h1 class="title">เข้าสู่ระบบด้วย LINE สำเร็จ</h1>
+        <h1 class="title">เข้าสู่ระบบด้วย LINE สำเร็จ กรุณารอเจ้าหน้าที่สักครู่ ⏳ </h1>
       </div>
 
       <div class="grid">
@@ -256,16 +256,20 @@ app.get('/callback', async (req, res) => {
 
           <div class="actions">
             <a class="btn ghost" href="/">← กลับหน้าแรก</a>
-            <a class="btn" href="/users">ดูรายชื่อผู้ใช้</a>
+            
             <button class="btn success" onclick="closeWin()">ปิดหน้านี้</button>
           </div>
           <div class="note">ปุ่ม “ปิดหน้านี้” จะปิดหน้าต่าง (หรือ <code>liff.closeWindow()</code> หากเปิดใน LIFF)</div>
         </section>
 
-        <section>
-          <div class="muted" style="margin-bottom:8px;font-weight:600">ข้อมูลที่ส่งกลับ</div>
-          <pre>${JSON.stringify(payload, null, 2)}</pre>
-        </section>
+    <section>
+        <div class="muted" style="margin-bottom:8px;font-weight:600">ข้อมูลที่ส่งกลับ</div>
+        <pre>${JSON.stringify(payload, null, 2)}</pre>
+        <p class="note" style="color:#facc15; font-size:13px; margin-top:12px;">
+    ⚠️ ระบบกำลังทำรายการ กรุณารอสักครู่ หากนานเกิน 24 ชั่วโมง กรุณาติดต่อพนักงาน <b>BONNY HOME</b>
+        </p>
+    </section>
+
       </div>
     </div>
   </div>
