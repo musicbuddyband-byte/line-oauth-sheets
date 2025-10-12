@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Register LINE User (OA2)</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 16px }
+    pre { white-space: pre-wrap; background: #f5f5f5; padding: 12px; border-radius: 8px }
+  </style>
+</head>
+<body>
+  <h2>กำลังลงทะเบียนผู้ใช้ OA2…</h2>
+  <pre id="log"></pre>
+  <script>
+    // === ใส่ค่าจริงของคุณ ===
+    const LIFF_ID  = "PUT_YOUR_OA2_LIFF_ID_HERE";
+    const OA_ALIAS = "OA2";
+    const POST_URL = "PUT_YOUR_APPS_SCRIPT_WEBAPP_URL_HERE";
+
+    const log = (...args) => {
+      const el = document.getElementById("log");
+      el.textContent += args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ') + "\\n";
+      console.log(...args);
+    };
+
+    async function main(){
+      try{
+        await liff.init({ liffId: LIFF_ID });
+        log("LIFF init OK. inClient =", liff.isInClient());
+        if (!liff.isInClient()) log("แนะนำให้เปิดจากในแอป LINE เพื่อให้ได้ userId");
+
+        const profile = await liff.getProfile();
+        const ctx = liff.getContext();
+        const decoded = liff.getDecodedIDToken ? liff.getDecodedIDToken() : null;
+
+        const payload = {
+          oa: OA_ALIAS,
+          liffId: LIFF_ID,
+          userId: profile.userId || null,
+          displayName: profile.displayName || null,
+          pictureUrl: profile.pictureUrl || null,
+          openId: decoded?.sub || null,
+          email: decoded?.email || null,
+          isInClient: liff.isInClient(),
+          viewType: ctx?.viewType || null,
+          ts: new Date().toISOString()
+        };
+
+        log("POST ", POST_URL);
+        const res = await fetch(POST_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json().catch(() => ({}));
+        log("Server:", data);
+
+        if (liff.isInClient()) setTimeout(() => liff.closeWindow(), 700);
+      } catch(err){
+        log("ERROR:", err?.message || err);
+      }
+    }
+    main();
+  </script>
+</body>
+</html>
