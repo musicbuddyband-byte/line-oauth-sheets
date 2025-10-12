@@ -1,3 +1,6 @@
-node_modules/
-.env
+
+# Secrets
 service-account.json
+
+.env
+.env.local
