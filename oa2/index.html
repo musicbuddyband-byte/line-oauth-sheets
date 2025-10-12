@@ -1,23 +1,34 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Register LINE User (OA2)</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
-    body { font-family: system-ui, sans-serif; padding: 16px }
-    pre { white-space: pre-wrap; background: #f5f5f5; padding: 12px; border-radius: 8px }
+    body {
+      font-family: system-ui, sans-serif;
+      padding: 16px
+    }
+
+    pre {
+      white-space: pre-wrap;
+      background: #f5f5f5;
+      padding: 12px;
+      border-radius: 8px
+    }
   </style>
 </head>
+
 <body>
-  <h2>¡ÓÅÑ§Å§·ÐàºÕÂ¹¼Ùéãªé OA2…</h2>
+  <h2>ï¿½ï¿½ï¿½Ñ§Å§ï¿½ï¿½ï¿½ï¿½Â¹ï¿½ï¿½ï¿½ï¿½ï¿½ OA2ï¿½</h2>
   <pre id="log"></pre>
   <script>
-    // === ãÊè¤èÒ¨ÃÔ§¢Í§¤Ø³ ===
-    const LIFF_ID  = "PUT_YOUR_OA2_LIFF_ID_HERE";
+    // === ï¿½ï¿½ï¿½ï¿½Ò¨ï¿½Ô§ï¿½Í§ï¿½Ø³ ===
+    const LIFF_ID = "2008276427-wx2lGn7Y";
     const OA_ALIAS = "OA2";
-    const POST_URL = "PUT_YOUR_APPS_SCRIPT_WEBAPP_URL_HERE";
+    const POST_URL = "https://script.google.com/macros/s/AKfycbwbX4OpX8rfwy9j3-U5P7oHYT8WZozYTi_hhRqM_BBc_QxsJQ7qUSpQS1spcGu_Od-nYg/exec";
 
     const log = (...args) => {
       const el = document.getElementById("log");
@@ -25,11 +36,11 @@
       console.log(...args);
     };
 
-    async function main(){
-      try{
+    async function main() {
+      try {
         await liff.init({ liffId: LIFF_ID });
         log("LIFF init OK. inClient =", liff.isInClient());
-        if (!liff.isInClient()) log("á¹Ð¹ÓãËéà»Ô´¨Ò¡ã¹áÍ» LINE à¾×èÍãËéä´é userId");
+        if (!liff.isInClient()) log("ï¿½Ð¹ï¿½ï¿½ï¿½ï¿½ï¿½Ô´ï¿½Ò¡ï¿½ï¿½Í» LINE ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ userId");
 
         const profile = await liff.getProfile();
         const ctx = liff.getContext();
@@ -58,11 +69,12 @@
         log("Server:", data);
 
         if (liff.isInClient()) setTimeout(() => liff.closeWindow(), 700);
-      } catch(err){
+      } catch (err) {
         log("ERROR:", err?.message || err);
       }
     }
     main();
   </script>
 </body>
+
 </html>
