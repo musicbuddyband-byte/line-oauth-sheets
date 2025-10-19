@@ -7,9 +7,9 @@
     "node": ">=18"
   },
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "tunnel": "ngrok http 3000",
+    "start": "cross-env NODE_ENV=production node server.js",
+    "dev": "cross-env NODE_ENV=development node --watch server.js",
+    "tunnel": "ngrok http --authtoken $NGROK_AUTHTOKEN $PORT",
     "dev:tunnel": "concurrently \"npm run dev\" \"npm run tunnel\"",
     "dev:auto": "cross-env NODE_ENV=development node --watch server.js"
   },
