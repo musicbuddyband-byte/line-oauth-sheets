@@ -7,7 +7,8 @@ import crypto from 'crypto';
 import { google } from 'googleapis';
 import path from 'node:path';
 import fs from 'node:fs';
-import ngrok from 'ngrok';
+let ngrok; // จะ import ตอน dev ข้างล่าง
+
 
 /* ---------- Pretty boot info ---------- */
 function printStartupInfo({ baseUrl, port, bots }) {
@@ -392,13 +393,40 @@ app.get('/api/users', async (_, res) => {
 
 /* ---------- Start ---------- */
 const port = process.env.PORT || 3000;
+
 app.listen(port, async () => {
-  if (process.env.NODE_ENV === 'development') {
-    const url = await ngrok.connect({ addr: port, authtoken: process.env.NGROK_AUTHTOKEN });
-    globalThis.BASE_URL = url;
-    printStartupInfo({ baseUrl: globalThis.BASE_URL, port, bots: BOT_LIST });
-  } else {
-    globalThis.BASE_URL = process.env.BASE_URL;
-    printStartupInfo({ baseUrl: globalThis.BASE_URL, port, bots: BOT_LIST });
+  try {
+    // ถ้ามี BASE_URL อยู่แล้ว (จาก .env หรือ Render) ข้าม ngrok ไปเลย
+    if (process.env.BASE_URL) {
+      globalThis.BASE_URL = process.env.BASE_URL;
+    } else if (process.env.NODE_ENV === 'development') {
+      // (ทางเลือก) เปิด ngrok เฉพาะตอนจำเป็นจริง ๆ
+      let ngrok;
+      try {
+        ngrok = (await import('ngrok')).default;
+        const url = await ngrok.connect({
+          proto: 'http',
+          addr: Number(port),
+          authtoken: process.env.NGROK_AUTHTOKEN || undefined,
+          region: 'jp' // ใกล้ไทย มักนิ่งกว่า
+        });
+        globalThis.BASE_URL = url;
+      } catch (e) {
+        console.error('NGROK_ERROR:', e?.body?.msg || e?.message || e);
+        // fallback: ใช้ localhost ไปก่อน
+        globalThis.BASE_URL = `http://localhost:${port}`;
+      }
+    } else {
+      // production
+      globalThis.BASE_URL = process.env.BASE_URL || `http://localhost:${port}`;
+    }
+  } finally {
+    printStartupInfo({
+      baseUrl: globalThis.BASE_URL,
+      port,
+      bots: BOT_LIST
+    });
   }
 });
+
+
