@@ -1,4 +1,3 @@
-// server.js
 import 'dotenv/config';
 import express from 'express';
 import cookieSession from 'cookie-session';
@@ -33,6 +32,7 @@ const {
   SHEET_ID,
   SHEET_NAME = 'Users',
   GOOGLE_APPLICATION_CREDENTIALS,
+  GOOGLE_APPLICATION_CREDENTIALS_JSON,
   BOTS = ''
 } = process.env;
 
@@ -41,14 +41,20 @@ if (!SHEET_ID) {
   process.exit(1);
 }
 
-if (!GOOGLE_APPLICATION_CREDENTIALS || !fs.existsSync(GOOGLE_APPLICATION_CREDENTIALS)) {
-  console.error('❌ ไม่พบไฟล์ Service Account:', GOOGLE_APPLICATION_CREDENTIALS);
+// ตรวจสอบ credentials: ลองทั้งไฟล์และ JSON
+let credentials;
+if (GOOGLE_APPLICATION_CREDENTIALS && fs.existsSync(GOOGLE_APPLICATION_CREDENTIALS)) {
+  credentials = GOOGLE_APPLICATION_CREDENTIALS; // ใช้ path ไฟล์
+} else if (GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+  try {
+    credentials = JSON.parse(GOOGLE_APPLICATION_CREDENTIALS_JSON); // ใช้ JSON string
+  } catch (e) {
+    console.error('❌ Parse GOOGLE_APPLICATION_CREDENTIALS_JSON ล้มเหลว:', e.message);
+    process.exit(1);
+  }
+} else {
+  console.error('❌ ไม่พบ GOOGLE_APPLICATION_CREDENTIALS หรือ GOOGLE_APPLICATION_CREDENTIALS_JSON');
   process.exit(1);
-}
-
-const BOT_LIST = BOTS.split(',').map(s => s.trim()).filter(Boolean);
-if (BOT_LIST.length === 0) {
-  console.warn('⚠️ ยังไม่ได้กำหนด BOTS=OA1,OA2,... ใน .env — ระบบยังทำงานได้ แต่ /login/:bot จะตรวจ bot ไม่ผ่าน');
 }
 
 /* ---------- Bot Config ---------- */
@@ -63,7 +69,8 @@ function getBotConfig(botName) {
 
 /* ---------- Google Sheets ---------- */
 const auth = new google.auth.GoogleAuth({
-  keyFile: GOOGLE_APPLICATION_CREDENTIALS,
+  credentials: typeof credentials === 'string' ? undefined : credentials,
+  keyFile: typeof credentials === 'string' ? credentials : undefined,
   scopes: ['https://www.googleapis.com/auth/spreadsheets']
 });
 const sheets = google.sheets({ version: 'v4', auth });
@@ -250,7 +257,7 @@ app.listen(port, async () => {
     printStartupInfo({
       baseUrl: globalThis.BASE_URL,
       port,
-      bots: BOT_LIST
+      bots: BOTS.split(',').map(s => s.trim()).filter(Boolean)
     });
   }
 });
