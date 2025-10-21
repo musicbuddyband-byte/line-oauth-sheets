@@ -1,6 +1,12 @@
-
-# Secrets
+# Google Service Account
 service-account.json
+*.json  # ถ้าต้องการ block JSON ทั้งหมด (ระวังถ้ามีไฟล์อื่น)
 
+# Environment files
 .env
 .env.local
+.env.*.local
+
+# Logs and temp
+node_modules/
+*.log
