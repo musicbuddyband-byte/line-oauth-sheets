@@ -8,8 +8,7 @@ import { google } from 'googleapis';
 import path from 'node:path';
 import fs from 'node:fs';
 
-// lazy import ngrok เฉพาะตอน dev
-let ngrok;
+let ngrok; // lazy import เฉพาะตอน dev
 
 /* ---------- Pretty boot info ---------- */
 function printStartupInfo({ baseUrl, port, bots }) {
@@ -79,12 +78,14 @@ const sheets = google.sheets({ version: 'v4', auth });
 const app = express();
 app.set('trust proxy', 1);
 const COOKIE_SECRET = process.env.COOKIE_SECRET || 'dev-secret-change-me';
+
+// ✅ ปรับ cookie สำหรับ Render (HTTPS) และ LINE OAuth
 app.use(cookieSession({
   name: 'sess',
   secret: COOKIE_SECRET,
   httpOnly: true,
-  sameSite: 'lax',
-  secure: process.env.NODE_ENV === 'production'
+  sameSite: 'none',    // ⬅️ ต้องเป็น none เพื่อให้ cookie ทำงานข้ามโดเมน
+  secure: true         // ⬅️ Render ใช้ HTTPS ต้องตั้ง secure=true
 }));
 
 // ✅ health check route
@@ -203,6 +204,12 @@ app.get('/callback/:bot', async (req, res) => {
   if (!cfg) return res.status(400).send(`Unknown bot: ${botName}`);
   try {
     const { code, state, error } = req.query;
+    console.log('DEBUG session', {
+      botName,
+      gotState: state,
+      savedState: req.session[`state_${botName}`],
+      sessionKeys: Object.keys(req.session || {})
+    });
     if (error) return res.status(400).send(`LINE error: ${error}`);
     if (!code || state !== req.session[`state_${botName}`]) return res.status(400).send('Invalid state/code');
     const tokenResp = await axios.post(
