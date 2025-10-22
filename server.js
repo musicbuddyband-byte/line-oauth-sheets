@@ -76,13 +76,14 @@ const sheets = google.sheets({ version: 'v4', auth });
 
 /* ---------- App ---------- */
 const app = express();
-app.set('trust proxy', 1);
+
 const COOKIE_SECRET = process.env.COOKIE_SECRET || 'dev-secret-change-me';
 
 // ✅ ปรับ cookie สำหรับ Render (HTTPS) และ LINE OAuth
+app.set('trust proxy', 1);
 app.use(cookieSession({
   name: 'sess',
-  secret: COOKIE_SECRET,
+  secret: process.env.COOKIE_SECRET,
   httpOnly: true,
   sameSite: 'none',    // ⬅️ ต้องเป็น none เพื่อให้ cookie ทำงานข้ามโดเมน
   secure: true         // ⬅️ Render ใช้ HTTPS ต้องตั้ง secure=true
@@ -198,6 +199,18 @@ app.get('/login/:bot', (req, res) => {
   res.redirect(url);
 });
 
+// ก่อนแลก token
+console.log('[DEBUG callback]',
+  JSON.stringify({
+    botName,
+    gotState: req.query.state,
+    savedState: req.session[`state_${botName}`],
+    hasVerifier: !!req.session[`verifier_${botName}`],
+    baseUrl: globalThis.BASE_URL
+  })
+);
+
+
 app.get('/callback/:bot', async (req, res) => {
   const botName = String(req.params.bot || '').trim();
   const cfg = getBotConfig(botName);
@@ -237,6 +250,24 @@ app.get('/callback/:bot', async (req, res) => {
     res.status(500).send('Internal Error');
   }
 });
+
+try {
+  const tokenResp = await axios.post(
+    'https://api.line.me/oauth2/v2.1/token',
+    qs.stringify({ /* ...ตามเดิม... */ }),
+    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+  );
+
+  const { id_token } = tokenResp.data;
+  // verify ต่อ...
+
+} catch (err) {
+  console.error('[DEBUG token error]', {
+    status: err?.response?.status,
+    data: err?.response?.data
+  });
+  return res.status(500).send('Internal error');
+}
 
 /* ---------- Start ---------- */
 const port = process.env.PORT || 3000;
